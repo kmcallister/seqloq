@@ -1,6 +1,10 @@
 # seqloq
 
+[![Build Status](https://travis-ci.org/kmcallister/seqloq.svg?branch=master)](https://travis-ci.org/kmcallister/seqloq)
+
 [Seqlocks][] for Rust, inspired by the [Linux kernel's implementation][].
+
+Check out the [API documentation][].
 
 seqloq supports optimistic, lock-free reads of thread-shared data. The reader
 checks a sequence number before and after reading, and retries if the data
@@ -32,3 +36,4 @@ machine.
 
 [Seqlocks]: http://en.wikipedia.org/wiki/Seqlock
 [Linux kernel's implementation]: https://github.com/torvalds/linux/blob/master/include/linux/seqlock.h
+[API documentation]: http://www.rust-ci.org/kmcallister/seqloq/doc/seqloq/struct.Seqloq.html
