@@ -17,4 +17,4 @@ def plot(which, bins):
     plt.savefig('histogram.'+which+'.png')
 
 plot('read', range(150, 200, 2))
-plot('write', range(600, 3750, 40))
+plot('write', range(500, 600, 4))
