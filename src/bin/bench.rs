@@ -12,6 +12,8 @@ use seqloq::Seqloq;
 use seqloq::tests::{TestArray, BenchMode, BenchRequest, ThreadSpec};
 use seqloq::tests::{SeqloqPeek, reader_writer_test};
 
+const NUM_SAMPLES: u64 = 10_000;
+
 pub fn main() {
     // Infrequent writes
     let writers = ThreadSpec {
@@ -28,12 +30,12 @@ pub fn main() {
 
     macro_rules! bench_one {
         ($name:expr, $mutex:ident, $mode:ident) => ({
-            let mut samples = vec![];
+            let mut samples = Vec::with_capacity(NUM_SAMPLES as usize);
 
             {
                 let bench = BenchRequest {
                     mode: BenchMode::$mode,
-                    num_samples: 10_000,
+                    num_samples: NUM_SAMPLES,
                     samples: &mut samples,
                 };
                 reader_writer_test::<$mutex<TestArray>>(readers, writers,
