@@ -14,6 +14,7 @@ use time::precise_time_ns;
 
 use Seqloq;
 
+#[doc(hidden)]
 pub trait TestableMutex: Send + Sync {
     fn create() -> Self;
     fn check(&self, delay: Duration) -> bool;
