@@ -49,16 +49,16 @@ impl<T> Seqloq<T>
 
     /// Peek at the data without locking it.
     ///
-    /// The data pointed to by the `&T` reference can change at any time!  In
-    /// that case the callback's return value may be meaningless (it will be
-    /// destroyed) but the callback must not violate memory safety.  The
-    /// `Send + Copy` bound limits somewhat the damage that can be done, but
-    /// there may be lurking soundness issues.
+    /// The pointed-to data can change at any time!  In that case the
+    /// callback's return value may be meaningless (it will be destroyed)
+    /// but the callback must not violate memory safety.  The `Send + Copy`
+    /// bound limits somewhat the damage that can be done, but there may be
+    /// lurking soundness issues.
     ///
     /// The callback will run more than once, if a concurrent write occurs.
     #[inline]
-    pub unsafe fn peek<F, R>(&self, mut f: F) -> R
-        where F: FnMut(&T) -> R,
+    pub fn peek<F, R>(&self, mut f: F) -> R
+        where F: FnMut(*const T) -> R,
     {
         loop {
             let old = self.seqnum.load(Ordering::SeqCst);
@@ -68,7 +68,7 @@ impl<T> Seqloq<T>
                 continue;
             }
 
-            let res = f(mem::transmute(self.data.get()));
+            let res = f(self.data.get());
 
             let new = self.seqnum.load(Ordering::SeqCst);
             if new == old {
@@ -83,9 +83,7 @@ impl<T> Seqloq<T>
     /// just as fast as `peek`.
     #[inline]
     pub fn read(&self) -> T {
-        unsafe {
-            self.peek(|x| *x)
-        }
+        self.peek(|x| unsafe { *x })
     }
 
     /// Lock for exclusive, read/write access.
@@ -131,7 +129,7 @@ impl<'a, T> Drop for SeqloqGuard<'a, T> {
 #[test]
 fn smoke_test() {
     let x: Seqloq<u32> = Seqloq::new(3);
-    assert_eq!(unsafe { x.peek(|v| *v) }, 3);
+    assert_eq!(x.peek(|v| unsafe { *v }), 3);
 
     {
         let mut g = x.lock();

@@ -100,9 +100,9 @@ impl TestableMutex for SeqloqPeek<TestArray> {
     }
 
     fn check(&self, delay: Duration) -> bool {
-        unsafe {
-            self.0.peek(|x| x.check(delay))
-        }
+        self.0.peek(|x| unsafe {
+            (*x).check(delay)
+        })
     }
 
     fn frob(&self, delay: Duration) {
