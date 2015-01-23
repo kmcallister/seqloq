@@ -11,13 +11,14 @@ use std::thread::Thread;
 use std::default::Default;
 use std::any::Any;
 use time::precise_time_ns;
+use test::black_box;
 
 use Seqloq;
 
 #[doc(hidden)]
 pub trait TestableMutex: Send + Sync {
     fn create() -> Self;
-    fn check(&self, delay: Duration) -> bool;
+    fn check(&self, delay: Duration) -> usize;
     fn frob(&self, delay: Duration);
 }
 
@@ -31,15 +32,17 @@ impl TestArray {
         TestArray([0; ARRAY_LEN])
     }
 
-    pub fn check(&self, delay: Duration) -> bool {
+    pub fn check(&self, delay: Duration) -> usize {
         let v = self.0[0];
-        for e in self.0.iter().skip(1) {
-            if *e != v {
-                return false;
-            }
-            timer::sleep(delay);
-        }
-        true
+        let n = self.0.iter().skip(1)
+            .filter(|e| {
+                timer::sleep(delay);
+                **e != v
+            }).count();
+
+        // Make sure it won't short-circuit even if inlined
+        black_box(n);
+        n
     }
 
     pub fn frob(&mut self, delay: Duration) {
@@ -55,7 +58,7 @@ impl TestableMutex for Mutex<TestArray> {
         Mutex::new(TestArray::new())
     }
 
-    fn check(&self, delay: Duration) -> bool {
+    fn check(&self, delay: Duration) -> usize {
         self.lock().unwrap().check(delay)
     }
 
@@ -69,7 +72,7 @@ impl TestableMutex for RwLock<TestArray> {
         RwLock::new(TestArray::new())
     }
 
-    fn check(&self, delay: Duration) -> bool {
+    fn check(&self, delay: Duration) -> usize {
         self.read().unwrap().check(delay)
     }
 
@@ -83,7 +86,7 @@ impl TestableMutex for Seqloq<TestArray> {
         Seqloq::new(TestArray::new())
     }
 
-    fn check(&self, delay: Duration) -> bool {
+    fn check(&self, delay: Duration) -> usize {
         let x = self.read();
         x.check(delay)
     }
@@ -100,7 +103,7 @@ impl TestableMutex for SeqloqPeek<TestArray> {
         SeqloqPeek(Seqloq::new(TestArray::new()))
     }
 
-    fn check(&self, delay: Duration) -> bool {
+    fn check(&self, delay: Duration) -> usize {
         self.0.peek(|x| unsafe {
             (*x).check(delay)
         })
@@ -121,7 +124,7 @@ impl TestableMutex for BogusMutex<TestArray> {
         BogusMutex(UnsafeCell::new(TestArray::new()))
     }
 
-    fn check(&self, delay: Duration) -> bool {
+    fn check(&self, delay: Duration) -> usize {
         unsafe {
             (*self.0.get()).check(delay)
         }
@@ -202,7 +205,7 @@ pub fn reader_writer_test<M: TestableMutex>(
                         if $is_writer {
                             shared.mutex.frob(delay);
                         } else {
-                            if !shared.mutex.check(delay) {
+                            if 0 != shared.mutex.check(delay) {
                                 shared.failed_checks.fetch_add(1, Ordering::SeqCst);
                             }
                         }
@@ -229,7 +232,7 @@ pub fn reader_writer_test<M: TestableMutex>(
                     t0 = precise_time_ns();
                     let res = shared.mutex.check(Duration::zero());
                     t1 = precise_time_ns();
-                    assert!(res);
+                    assert_eq!(res, 0);
                     readers.pause();
                 },
 

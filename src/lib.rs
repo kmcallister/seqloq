@@ -3,6 +3,7 @@
 #![allow(unstable)]
 
 extern crate time;
+extern crate test;
 
 use std::mem;
 use std::ops::{Deref, DerefMut};
