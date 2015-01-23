@@ -51,9 +51,9 @@ impl<T> Seqloq<T>
     ///
     /// The data pointed to by the `&T` reference can change at any time!  In
     /// that case the callback's return value may be meaningless (it will be
-    /// destroyed) but the callback must not violate memory safety.  The `Send
-    /// + Copy` bound limits somewhat the damage that can be done, but there may
-    /// be lurking soundness issues.
+    /// destroyed) but the callback must not violate memory safety.  The
+    /// `Send + Copy` bound limits somewhat the damage that can be done, but
+    /// there may be lurking soundness issues.
     ///
     /// The callback will run more than once, if a concurrent write occurs.
     #[inline]
