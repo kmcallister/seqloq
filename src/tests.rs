@@ -92,7 +92,7 @@ impl TestableMutex for Seqloq<TestArray> {
     }
 
     fn frob(&self, delay: Duration) {
-        self.lock().frob(delay);
+        self.lock().unwrap().frob(delay);
     }
 }
 
@@ -105,7 +105,7 @@ impl TestableMutex for SeqloqPeek<TestArray> {
 
     fn check(&self, delay: Duration) -> usize {
         self.0.peek(|x| unsafe {
-            (*x).check(delay)
+            (*x.unwrap()).check(delay)
         })
     }
 
