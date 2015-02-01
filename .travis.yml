@@ -1,9 +1,8 @@
+sudo: false
 env:
   global:
     - secure: F1in0O53pofVHd5cdjy1Y9Abog4yhY4Mb1Ge8MAhNA1vPCd/GKPXYm4y1i/sTXolN0qeTK5tORS1SF5n+3S7kqqHAr2HNUxXCGhJwWG3GSqDjLhQfp6LB7YyRb4WgwQZCJpUCaGvp0ltPMbf1Gy4gW2c2rumn+4ddet6eVIo3Xw=
 language: rust
-install:
-  - sudo apt-get update
 script:
   - cargo test
   - cargo doc
