@@ -1,6 +1,6 @@
 #![feature(unsafe_destructor)]
+#![feature(core, std_misc, io, test)]
 #![deny(warnings)]
-#![allow(unstable)]
 
 extern crate time;
 extern crate test;

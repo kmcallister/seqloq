@@ -1,11 +1,11 @@
+#![feature(io)]
 #![deny(warnings)]
-#![allow(unstable)]
 
 extern crate seqloq;
 
 use std::sync::{Mutex, RwLock};
 use std::default::Default;
-use std::io::File;
+use std::old_io::File;
 use std::path::Path;
 
 use seqloq::Seqloq;

@@ -2,7 +2,7 @@
 //!
 //! Unless you're writing custom benchmarks, you don't need this.
 
-use std::io::timer;
+use std::old_io::timer;
 use std::time::Duration;
 use std::sync::{Arc, Mutex, RwLock};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
