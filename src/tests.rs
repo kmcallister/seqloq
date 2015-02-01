@@ -172,7 +172,7 @@ struct SharedData<M> {
     failed_checks: AtomicUsize,
 }
 
-#[derive(Copy, Show)]
+#[derive(Copy, Debug)]
 pub enum BenchMode { Reader, Writer }
 
 pub struct BenchRequest<'a> {
